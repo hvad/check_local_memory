@@ -25,15 +25,15 @@ func main() {
 	used := m.Used / 1024 / 1024
 
 	if int(m.UsedPercent) >= *critical {
-		fmt.Printf("CRITICAL - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo\n", int(m.UsedPercent), total, used)
+		fmt.Printf("CRITICAL - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
 		os.Exit(2)
 
 	} else if int(m.UsedPercent) >= *warning {
-		fmt.Printf("WARNING - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo\n", int(m.UsedPercent), total, used)
+		fmt.Printf("WARNING - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
 		os.Exit(1)
 
 	} else {
-		fmt.Printf("OK - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo\n", int(m.UsedPercent), total, used)
+		fmt.Printf("OK - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
 		os.Exit(0)
 	}
 
