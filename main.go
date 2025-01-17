@@ -8,10 +8,15 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
-func main() {
+const (
+	CRITICAL_EXIT = 2
+	WARNING_EXIT  = 1
+	OK_EXIT       = 0
+)
 
-	warning := flag.Int("warning", 80, "Warning thresold for memory.")
-	critical := flag.Int("critical", 90, "Critical thresold for memory.")
+func main() {
+	warning := flag.Int("warning", 80, "Warning threshold for memory.")
+	critical := flag.Int("critical", 90, "Critical threshold for memory.")
 	flag.Parse()
 
 	m, err := mem.VirtualMemory()
@@ -21,20 +26,25 @@ func main() {
 	}
 
 	total := m.Total / 1024 / 1024
-
 	used := m.Used / 1024 / 1024
+	usedPercent := int(m.UsedPercent)
 
-	if int(m.UsedPercent) >= *critical {
-		fmt.Printf("CRITICAL - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
-		os.Exit(2)
+	var status string
+	var exitCode int
 
-	} else if int(m.UsedPercent) >= *warning {
-		fmt.Printf("WARNING - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
-		os.Exit(1)
-
-	} else {
-		fmt.Printf("OK - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n", int(m.UsedPercent), total, used, int(m.UsedPercent), *warning, *critical)
-		os.Exit(0)
+	switch {
+	case usedPercent >= *critical:
+		status = "CRITICAL"
+		exitCode = CRITICAL_EXIT
+	case usedPercent >= *warning:
+		status = "WARNING"
+		exitCode = WARNING_EXIT
+	default:
+		status = "OK"
+		exitCode = OK_EXIT
 	}
 
+	fmt.Printf("%s - Memory percent usage %v%% - Total Memory %v Mo - Used Memory %v Mo | mem_percent = %v,%v,%v,0,100\n",
+		status, usedPercent, total, used, usedPercent, *warning, *critical)
+	os.Exit(exitCode)
 }
